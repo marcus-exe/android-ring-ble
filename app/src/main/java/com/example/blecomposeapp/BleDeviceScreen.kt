@@ -1,7 +1,9 @@
 package com.example.blecomposeapp
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -45,10 +48,16 @@ fun BleDeviceScreen(viewModel: BluetoothViewModel) {
 
         Text("Status: $status")
 
-        Text(
-            text = receivedData,
-            modifier = Modifier.padding(16.dp)
-        )
+        Text("Received Data:")
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .border(1.dp, Color.Gray)
+                .padding(8.dp)
+        ) {
+            Text(text = receivedData)
+        }
 
 
         Spacer(modifier = Modifier.height(8.dp))

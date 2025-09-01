@@ -110,7 +110,7 @@ class BluetoothScanner(private val context: Context) {
                 println("📥 $resultText")
 
                 // Send back via callback
-                onDataReceived?.invoke(resultText)
+                onDataReceived?.invoke("Raw: $hexString\nDecoded: $decoded")
             }
 
             override fun onDescriptorWrite(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {

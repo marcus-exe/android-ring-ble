@@ -1,7 +1,6 @@
 package com.example.blecomposeapp
 
 import android.Manifest
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.content.Context
@@ -12,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class BluetoothViewModel(context: Context) : ViewModel() {
     private val scanner = BluetoothScanner(context)
 
@@ -27,10 +27,16 @@ class BluetoothViewModel(context: Context) : ViewModel() {
     val receivedData: StateFlow<String> = _receivedData
 
     init {
+        // Add device found callback
         scanner.onDeviceFound = { device ->
             if (!_devices.value.contains(device)) {
                 _devices.value = _devices.value + device
             }
+        }
+
+        // Add data received callback
+        scanner.onDataReceived = { text ->
+            _receivedData.value = text
         }
     }
 
@@ -58,9 +64,5 @@ class BluetoothViewModel(context: Context) : ViewModel() {
         connectedGatt?.close()
         connectedGatt = null
         _connectionStatus.value = "Disconnected"
-    }
-
-    fun updateReceivedData(text: String) {
-        _receivedData.value = text
     }
 }
