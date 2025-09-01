@@ -42,7 +42,14 @@ fun BleDeviceScreen(viewModel: BluetoothViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(text = "Status: $status")
+        Text("Status: $status")
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(onClick = { viewModel.disconnect() }) {
+            Text("Disconnect")
+        }
+
 
         Spacer(modifier = Modifier.height(16.dp))
 

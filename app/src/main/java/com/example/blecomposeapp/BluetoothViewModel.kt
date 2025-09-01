@@ -3,6 +3,7 @@ package com.example.blecomposeapp
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -19,6 +20,8 @@ class BluetoothViewModel(context: Context) : ViewModel() {
 
     private val _connectionStatus = MutableStateFlow("Not connected")
     val connectionStatus: StateFlow<String> = _connectionStatus
+
+    private var connectedGatt: BluetoothGatt? = null
 
     init {
         scanner.onDeviceFound = { device ->
@@ -40,17 +43,18 @@ class BluetoothViewModel(context: Context) : ViewModel() {
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun connectToDevice(device: BluetoothDevice) {
-        scanner.connectToDevice(device) { status ->
+        scanner.connectToDevice(device) { gatt, status ->
+            if (gatt != null) connectedGatt = gatt
             _connectionStatus.value = status
         }
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    fun connectToDeviceByMac(macAddress: String) {
-        val device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(macAddress)
-        scanner.connectToDevice(device) { status ->
-            _connectionStatus.value = status
-        }
+    fun disconnect() {
+        connectedGatt?.disconnect()
+        connectedGatt?.close()
+        connectedGatt = null
+        _connectionStatus.value = "Disconnected"
     }
 
 }
