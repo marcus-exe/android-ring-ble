@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 fun BleDeviceScreen(viewModel: BluetoothViewModel) {
     val devices by viewModel.devices.collectAsState()
     val status by viewModel.connectionStatus.collectAsState()
+    val receivedData by viewModel.receivedData.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -43,6 +44,12 @@ fun BleDeviceScreen(viewModel: BluetoothViewModel) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text("Status: $status")
+
+        Text(
+            text = receivedData,
+            modifier = Modifier.padding(16.dp)
+        )
+
 
         Spacer(modifier = Modifier.height(8.dp))
 

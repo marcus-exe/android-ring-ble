@@ -23,6 +23,9 @@ class BluetoothViewModel(context: Context) : ViewModel() {
 
     private var connectedGatt: BluetoothGatt? = null
 
+    private val _receivedData = MutableStateFlow("")
+    val receivedData: StateFlow<String> = _receivedData
+
     init {
         scanner.onDeviceFound = { device ->
             if (!_devices.value.contains(device)) {
@@ -57,4 +60,7 @@ class BluetoothViewModel(context: Context) : ViewModel() {
         _connectionStatus.value = "Disconnected"
     }
 
+    fun updateReceivedData(text: String) {
+        _receivedData.value = text
+    }
 }
