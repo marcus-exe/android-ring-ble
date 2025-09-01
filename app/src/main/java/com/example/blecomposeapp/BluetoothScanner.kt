@@ -41,20 +41,28 @@ class BluetoothScanner(private val context: Context) {
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    fun connectToDevice(device: BluetoothDevice) {
+    fun connectToDevice(device: BluetoothDevice, onStatusChange: (String) -> Unit = {}) {
         device.connectGatt(context, false, object : BluetoothGattCallback() {
+            @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
             override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
-                if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    gatt.discoverServices()
+                when (newState) {
+                    BluetoothProfile.STATE_CONNECTED -> {
+                        onStatusChange("✅ Connected to ${device.name ?: device.address}")
+                        gatt.discoverServices()
+                    }
+                    BluetoothProfile.STATE_DISCONNECTED -> {
+                        onStatusChange("❌ Disconnected from ${device.name ?: device.address}")
+                    }
                 }
             }
 
             override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
-                val services = gatt.services
-                services.forEach { service ->
-                    println("Service: ${service.uuid}")
+                gatt.services.forEach {
+                    println("Service discovered: ${it.uuid}")
                 }
             }
         })
     }
+
+
 }
