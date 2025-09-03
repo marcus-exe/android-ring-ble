@@ -81,6 +81,7 @@ fun BleDeviceScreen(viewModel: BluetoothViewModel) {
         }
 
         Text("Received Data:")
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
