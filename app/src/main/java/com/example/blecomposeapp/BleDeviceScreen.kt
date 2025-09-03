@@ -17,10 +17,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -30,6 +34,8 @@ fun BleDeviceScreen(viewModel: BluetoothViewModel) {
     val devices by viewModel.devices.collectAsState()
     val status by viewModel.connectionStatus.collectAsState()
     val receivedData by viewModel.receivedData.collectAsState()
+
+    var commandToSend by remember { mutableStateOf("6901000000000000000000000000006A") }
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -48,7 +54,33 @@ fun BleDeviceScreen(viewModel: BluetoothViewModel) {
 
         Text("Status: $status")
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Input field for the command
+        OutlinedTextField(
+            value = commandToSend,
+            onValueChange = { commandToSend = it },
+            label = { Text("Command to send (hex string)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Send command button
+        Button(
+            onClick = {
+                val commandBytes = commandToSend.chunked(2)
+                    .map { it.toInt(16).toByte() }
+                    .toByteArray()
+                viewModel.sendCommand(commandBytes)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Send Command")
+        }
+
         Text("Received Data:")
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -56,9 +88,17 @@ fun BleDeviceScreen(viewModel: BluetoothViewModel) {
                 .border(1.dp, Color.Gray)
                 .padding(8.dp)
         ) {
-            Text(text = receivedData)
+            // Use LazyColumn to display the list of received data strings
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                // ReverseLayout makes the newest item appear at the bottom
+                reverseLayout = true
+            ) {
+                items(receivedData) { data ->
+                    Text(text = data)
+                }
+            }
         }
-
 
         Spacer(modifier = Modifier.height(8.dp))
 

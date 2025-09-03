@@ -127,6 +127,15 @@ class BluetoothScanner(private val context: Context) {
                 return "Value: ${data[0].toInt() and 0xFF}"
             }
 
+            @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+            override fun onCharacteristicWrite(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
+                if (status == BluetoothGatt.GATT_SUCCESS) {
+                    println("✅ Write successful for ${characteristic.uuid}")
+                } else {
+                    println("❌ Write failed for ${characteristic.uuid}, status: $status")
+                }
+            }
+
         })
     }
 }
