@@ -3,6 +3,7 @@ package com.example.blecomposeapp
 import android.Manifest
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCharacteristic
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -23,8 +24,8 @@ class BluetoothViewModel(context: Context) : ViewModel() {
 
     private var connectedGatt: BluetoothGatt? = null
 
-    private val _receivedData = MutableStateFlow("")
-    val receivedData: StateFlow<String> = _receivedData
+    private val _receivedData = MutableStateFlow<List<String>>(emptyList())
+    val receivedData: StateFlow<List<String>> = _receivedData
 
     init {
         // Add device found callback
@@ -36,7 +37,7 @@ class BluetoothViewModel(context: Context) : ViewModel() {
 
         // Add data received callback
         scanner.onDataReceived = { text ->
-            _receivedData.value = text
+            _receivedData.value = _receivedData.value + text
         }
     }
 
@@ -65,4 +66,26 @@ class BluetoothViewModel(context: Context) : ViewModel() {
         connectedGatt = null
         _connectionStatus.value = "Disconnected"
     }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    fun sendCommand(command: ByteArray) {
+        connectedGatt?.let { gatt ->
+            // Find the characteristic to write to
+            val writableChar = gatt.services
+                .flatMap { it.characteristics }
+                .firstOrNull { it.properties and BluetoothGattCharacteristic.PROPERTY_WRITE != 0 }
+
+            writableChar?.let { char ->
+                char.value = command
+                gatt.writeCharacteristic(char)
+            } ?: run {
+                println("❌ No writable characteristic found!")
+            }
+        }
+    }
+
+    fun clearReceivedData() {
+        _receivedData.value = emptyList()
+    }
+
 }
